@@ -223,7 +223,7 @@ function todosCard(s, day) {
   const feiertage = feiertageOn(feiertagRegion(s.settings), day);
   return {
     cls: '', tapeHtml: tape('himmel'), title: 'To-Dos & Termine',
-    sub: `${openCount} offen · Termine für andere Tage trägst du im <a href="#kalender">Kalender</a> ein.`,
+    sub: todos.length ? `<span class="chip chip--ok">${todos.length - openCount} geschafft</span> <span class="chip chip--open">${openCount} offen</span>` : '',
     body: `
       ${feiertage.map((f) => `<p class="ferien-chip feiertag-chip" style="margin:0 0 var(--s2)">🎉 Heute ist Feiertag: <strong>${esc(f.name)}</strong>${f.local ? ' <span class="card__sub">(nur örtlich)</span>' : ''}</p>`).join('')}
       ${todoEdit ? '' : `<form class="inline-form" data-form="todo">
@@ -306,7 +306,7 @@ function trackerCard(s, d) {
   const todayTracks = tracksOfDay(d);
   return {
     cls: 'card--rosa card--wide', tapeHtml: tape('himmel', 'left'), title: 'Wie geht es meinem Körper?', icon: trackerIcon(),
-    sub: 'Migräne und andere Beschwerden festhalten. Nachtragen geht im <a href="#kalender">Kalender</a>.',
+    sub: 'Migräne und andere Beschwerden festhalten.',
     body: s.trackers.length ? `<div class="stack">
       ${s.trackers.map((tr, idx) => {
         const entries = todayTracks.filter((e) => e.trackerId === tr.id);
