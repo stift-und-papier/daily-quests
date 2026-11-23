@@ -846,5 +846,7 @@ dialog.choice::backdrop { background: rgba(74, 59, 54, .35); }
 :root[data-theme="dark"] .input::placeholder { color: #B5A49C; }
 :root[data-theme="dark"] .feiertag-chip { background: #1E3A30; }
 :root[data-theme="dark"] .chip--wichtig { color: #2A1A20; }
+/* Stufen-Farben (levelColor) und Periodentage bleiben hell → dunkle Schrift darauf */
+:root[data-theme="dark"] :is(.level, .track-week__cell.has, .level-opt span, .cal__day.is-period) { color: #2A1A20; }
 :root[data-theme="dark"] .dot--ferien { background: repeating-linear-gradient(-45deg, #2C4A40 0 3px, #4F8C78 3px 6px); }
 :root[data-theme="dark"] .cal__day.is-ferien:not(.is-selected) { background: repeating-linear-gradient(-45deg, #243F36 0 5px, #2E4D43 5px 10px); }
