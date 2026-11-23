@@ -6,7 +6,14 @@ export const SCALES = {
   '1-5':   { label: 'Stufe 1–5', min: 1, max: 5 },
   '1-3':   { label: 'leicht / mittel / stark', min: 1, max: 3 },
   'yesno': { label: 'keine Skala (nur „war da“)', min: null, max: null },
+  'habit': { label: 'Gewohnheit zum Abhaken (z. B. Sport gemacht)', min: null, max: null },
 };
+
+/** Gewohnheit (positiver Tracker, auf „Heute“ einfach abhaken)? */
+export const isHabit = (tracker) => tracker?.scale === 'habit';
+
+/** Hat die Skala Stufen? (Nicht bei „keine Skala“ und Gewohnheiten.) */
+export const hasLevels = (scale) => levelsOf(scale).length > 0;
 
 /** Farben für Tracker im Kalender (kräftigere Pastelltöne, gut erkennbar mit dunkler Kontur). */
 export const TRACKER_COLORS = [
@@ -52,7 +59,7 @@ export function levelWord(scale, level) {
 }
 
 export function levelText(scale, level) {
-  if (level === null || level === undefined) return 'eingetragen';
+  if (level === null || level === undefined) return scale === 'habit' ? 'geschafft ✓' : 'eingetragen';
   if (!inScale(scale, level)) return `Stufe ${level}`; // z. B. nach einem Skalenwechsel
   const s = SCALES[scale];
   const word = levelWord(scale, level);

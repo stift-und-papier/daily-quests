@@ -179,6 +179,17 @@ function trackerPanel(s, today) {
 
 /* ---------- Kalender ---------- */
 
+/** Kleine Erfolge und Abend-Reflexion eines Tages (nur lesen). */
+function memoriesHtml(day) {
+  const wins = (day?.wins || []).filter(Boolean);
+  const refl = (day?.reflection || '').trim();
+  if (!wins.length && !refl) return '';
+  return `<div class="memories">
+    ${wins.length ? `<h4>★ Kleine Erfolge</h4><ul>${wins.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+    ${refl ? `<h4>♡ In Erinnerung behalten</h4><p class="memories__text">${esc(refl)}</p>` : ''}
+  </div>`;
+}
+
 export function calendarHtml(today) {
   const s = getState();
   const bundesland = s.settings.schoolRegion || null;
@@ -238,9 +249,11 @@ export function calendarHtml(today) {
       <div class="kal">
         <div>
           <div class="cal__nav">
+            <button class="btn btn--icon btn--ghost cal__year" type="button" data-action="cal-month" data-dir="-12" data-key="kal-prev-y" aria-label="Ein Jahr zurück" title="Ein Jahr zurück">«</button>
             <button class="btn btn--icon btn--ghost" type="button" data-action="cal-month" data-dir="-1" data-key="kal-prev" aria-label="Vorheriger Monat">${line.arrowLeft()}</button>
             <h3 aria-live="polite">${monthFmt.format(first)}</h3>
             <button class="btn btn--icon btn--ghost" type="button" data-action="cal-month" data-dir="1" data-key="kal-next" aria-label="Nächster Monat">${line.arrowRight()}</button>
+            <button class="btn btn--icon btn--ghost cal__year" type="button" data-action="cal-month" data-dir="12" data-key="kal-next-y" aria-label="Ein Jahr vor" title="Ein Jahr vor">»</button>
           </div>
           <div class="cal" role="group" aria-label="Kalender ${monthFmt.format(first)}">
             ${['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((w) => `<span class="cal__wd" aria-hidden="true">${w}</span>`).join('')}
@@ -272,6 +285,7 @@ export function calendarHtml(today) {
           <div class="tabpanel" role="tabpanel" id="panel-day" aria-labelledby="${dayTab === 'events' ? 'tab-ev' : 'tab-tr'}">
             ${dayTab === 'events' ? eventsPanel(s) : trackerPanel(s, today)}
           </div>
+          ${memoriesHtml(s.days[selected])}
         </div>
       </div>
     </section>`;

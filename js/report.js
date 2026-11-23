@@ -1,11 +1,11 @@
 // Bericht für Ärztin/Arzt: Tracker-Tagebuch + Medikamente + Zyklusphase, zum Drucken oder als PDF.
 // Es wird nichts verschickt: Der Bericht entsteht im Browser und geht an den Druckdialog
 // („Als PDF speichern“ bzw. auf dem iPhone: Teilen → Drucken → Bild auseinanderziehen → Teilen/Sichern).
-import { addDays, formatFull, formatWeekday } from './dates.js';
+import { addDays, formatFull, formatWeekday, formatLong } from './dates.js';
 import { esc } from './ui.js';
-import { levelText, tracksOfDay, SCALES } from './trackers.js';
+import { levelText, tracksOfDay, SCALES, hasLevels } from './trackers.js';
 import { phaseOnDate, periodStarts, PHASES } from './cycle.js';
-import { medSlots } from './views/today.js';
+import { medSlots, weekStart } from './views/today.js';
 
 const avg = (arr) => (arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : null);
 
@@ -70,15 +70,15 @@ export function reportHtml(data, now = new Date()) {
           <h2>${esc(tracker.name)}</h2>
           <p>
             <strong>${dayCount}</strong> von ${data.days} Tagen (${entryCount} ${entryCount === 1 ? 'Eintrag' : 'Einträge'})
-            ${tracker.scale !== 'yesno' && maxLevel !== null ? ` · Skala ${esc(SCALES[tracker.scale].label.replace('Stufe ', ''))} · Durchschnitt <strong>${String(avgLevel).replace('.', ',')}</strong> · höchste Stufe <strong>${maxLevel}</strong>` : ''}
+            ${hasLevels(tracker.scale) && maxLevel !== null ? ` · Skala ${esc(SCALES[tracker.scale].label.replace('Stufe ', ''))} · Durchschnitt <strong>${String(avgLevel).replace('.', ',')}</strong> · höchste Stufe <strong>${maxLevel}</strong>` : ''}
           </p>
           ${data.hasCycle && dayCount ? `<p>Nach Zyklusphase: ${Object.entries(byPhase).map(([p, n]) => `${PHASES[p].name} ${n}`).join(' · ')}</p>` : ''}
           ${rows.length ? `<table>
-            <thead><tr><th>Datum</th><th>Uhrzeit</th>${tracker.scale !== 'yesno' ? '<th>Stufe</th>' : ''}${data.hasCycle ? '<th>Zyklus</th>' : ''}<th>Medikamente genommen</th><th>Notiz</th></tr></thead>
+            <thead><tr><th>Datum</th><th>Uhrzeit</th>${hasLevels(tracker.scale) ? '<th>Stufe</th>' : ''}${data.hasCycle ? '<th>Zyklus</th>' : ''}<th>Medikamente genommen</th><th>Notiz</th></tr></thead>
             <tbody>${rows.map((r) => `<tr>
               <td>${formatWeekday(r.key)} ${formatFull(r.key)}</td>
               <td>${esc(r.entry.time || '–')}</td>
-              ${tracker.scale !== 'yesno' ? `<td>${esc(levelText(tracker.scale, r.entry.level))}</td>` : ''}
+              ${hasLevels(tracker.scale) ? `<td>${esc(levelText(tracker.scale, r.entry.level))}</td>` : ''}
               ${data.hasCycle ? `<td>${phaseName(r.phase)}</td>` : ''}
               <td>${r.meds.length ? esc(r.meds.join(', ')) : '–'}</td>
               <td>${esc(r.entry.note || '')}</td>
@@ -124,4 +124,45 @@ export function rangeStart(today, months) {
   const dt = new Date(y, m - 1 - months, d);
   const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
   return addDays(key, 1);
+}
+
+/* ---------- Rückblick: Kleine Erfolge & Abend-Reflexionen ---------- */
+
+/** Zeitraum (Woche Mo–So, Monat oder Jahr), in dem `key` liegt. */
+export function periodRange(mode, key) {
+  if (mode === 'week') { const from = weekStart(key); return { from, to: addDays(from, 6) }; }
+  if (mode === 'year') return { from: `${key.slice(0, 4)}-01-01`, to: `${key.slice(0, 4)}-12-31` };
+  const [y, m] = key.split('-').map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return { from: `${key.slice(0, 7)}-01`, to: `${key.slice(0, 7)}-${String(last).padStart(2, '0')}` };
+}
+
+/** Tage mit Erfolgen oder Reflexion im Zeitraum, chronologisch. */
+export function memoriesData(state, from, to) {
+  return Object.keys(state.days).filter((k) => k >= from && k <= to).sort().map((key) => ({
+    key,
+    wins: (state.days[key].wins || []).filter(Boolean),
+    reflection: (state.days[key].reflection || '').trim(),
+  })).filter((d) => d.wins.length || d.reflection);
+}
+
+/** Liste der Erinnerungen (für Ansicht und Druck). */
+export function memoriesListHtml(rows) {
+  if (!rows.length) return '<p>In diesem Zeitraum gibt es noch keine Erfolge oder Reflexionen.</p>';
+  return rows.map((r) => `<section class="memories">
+    <h4>${formatLong(r.key)} ${r.key.slice(0, 4)}</h4>
+    ${r.wins.length ? `<ul>${r.wins.map((w) => `<li>★ ${esc(w)}</li>`).join('')}</ul>` : ''}
+    ${r.reflection ? `<p class="memories__text">♡ ${esc(r.reflection)}</p>` : ''}
+  </section>`).join('');
+}
+
+/** Druckfassung des Rückblicks. */
+export function memoriesReportHtml(rows, from, to) {
+  return `<article class="report">
+    <header class="report__head">
+      <h1>Mein Rückblick</h1>
+      <p><strong>Zeitraum:</strong> ${formatFull(from)} – ${formatFull(to)} · Kleine Erfolge und was ich in Erinnerung behalten will</p>
+    </header>
+    ${memoriesListHtml(rows)}
+  </article>`;
 }

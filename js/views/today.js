@@ -2,9 +2,9 @@
 // Darunter die Kästen in der selbst gewählten Reihenfolge – einklappbar und ausblendbar
 // (Einstellungen → „Heute-Seite & Bereiche“).
 import { getState, update, peekDay, ensureDay, uid } from '../store.js';
-import { addDays, formatShort, timeToMinutes, minutesNow } from '../dates.js';
+import { addDays, formatShort, timeToMinutes, minutesNow, fromKey } from '../dates.js';
 import { missedMeds } from '../reminders.js';
-import { eventsOfDay, tracksOfDay, trackerColor, setEventDone, skipOccurrence, TRACKER_COLORS, isBirthday, eventLabel } from '../trackers.js';
+import { eventsOfDay, tracksOfDay, trackerColor, setEventDone, skipOccurrence, TRACKER_COLORS, isBirthday, eventLabel, isHabit } from '../trackers.js';
 import { trackerFormHtml, readTrackerForm, trackEntriesHtml, colorDot } from './tracker-form.js';
 import { bottle, pillbox, battery, star, heartFace, sparkle, line, trackerIcon } from '../icons.js';
 import { esc, toast, tape, foldCard, choose } from '../ui.js';
@@ -302,13 +302,61 @@ function focusCard(s, day) {
   };
 }
 
+function habitsCard(s, d) {
+  const habits = s.trackers.map((tr, idx) => ({ tr, idx })).filter((x) => isHabit(x.tr));
+  const done = habits.filter((x) => (d.tracks || []).some((e) => e.trackerId === x.tr.id)).length;
+  return {
+    cls: 'card--mint', tapeHtml: tape('butter', 'left'), title: 'Meine Gewohnheiten',
+    sub: habits.length ? `<span class="chip chip--ok">${done} geschafft</span> <span class="chip chip--open">${habits.length - done} offen</span>` : '',
+    body: habits.length ? `<ul class="plain">
+      ${habits.map(({ tr, idx }) => {
+        const ok = (d.tracks || []).some((e) => e.trackerId === tr.id);
+        return `<li><label class="row ${ok ? 'row--done' : ''}">
+          <input type="checkbox" class="check" data-action="habit" data-id="${tr.id}" data-key="habit-${tr.id}" ${ok ? 'checked' : ''}>
+          <span class="row__text">${colorDot(trackerColor(tr, idx))}${esc(tr.name)}</span>
+          <span class="chip ${ok ? 'chip--ok' : 'chip--open'}">${ok ? 'geschafft' : 'offen'}</span>
+        </label></li>`;
+      }).join('')}
+    </ul>` : `<p>Noch keine Gewohnheiten. Lege unter <a href="#einstellungen">Einstellungen → Meine Tracker</a> einen Tracker mit der Skala „Gewohnheit zum Abhaken“ an, z. B. „Sport gemacht“.</p>`,
+  };
+}
+
+function reflectionCard(d) {
+  return {
+    cls: 'card--flieder', tapeHtml: tape('mint'), title: 'Abend-Reflexion',
+    sub: 'Was ich von heute in Erinnerung behalten will',
+    body: `<label for="reflection" class="visually-hidden">Was ich von heute in Erinnerung behalten will</label>
+      <textarea id="reflection" class="input textarea" rows="3" maxlength="600" data-action="reflection" data-key="reflection" placeholder="z. B. das Lachen in der Pause …">${esc(d.reflection || '')}</textarea>
+      <p class="card__sub" style="margin-top:var(--s1)">Wird automatisch gespeichert. Nachlesen im Kalender beim Tag.</p>`,
+  };
+}
+
+/** Montag der Woche von `key`. */
+export const weekStart = (key) => addDays(key, -((fromKey(key).getDay() + 6) % 7));
+
+/** Lob-Texte: Trinkziel bzw. Gewohnheit an mindestens `min` Tagen dieser Woche (Mo bis `day`) geschafft. */
+export function weekPraise(state, day, min = 3) {
+  const keys = [];
+  for (let k = weekStart(day); k <= day; k = addDays(k, 1)) keys.push(k);
+  const goal = state.settings.waterGoal || 2000;
+  const out = [];
+  const water = keys.filter((k) => (state.days[k]?.water || 0) >= goal).length;
+  if (water >= min) out.push(`Du hast diese Woche schon an ${water} Tagen dein Trinkziel geschafft – großartig! 💧`);
+  state.trackers.filter(isHabit).forEach((tr) => {
+    const n = keys.filter((k) => (state.days[k]?.tracks || []).some((e) => e.trackerId === tr.id)).length;
+    if (n >= min) out.push(`„${tr.name}“ schon an ${n} Tagen diese Woche – stark! ✦`);
+  });
+  return out;
+}
+
 function trackerCard(s, d) {
   const todayTracks = tracksOfDay(d);
   return {
     cls: 'card--rosa card--wide', tapeHtml: tape('himmel', 'left'), title: 'Wie geht es meinem Körper?', icon: trackerIcon(),
     sub: 'Migräne und andere Beschwerden festhalten.',
-    body: s.trackers.length ? `<div class="stack">
+    body: s.trackers.some((t) => !isHabit(t)) ? `<div class="stack">
       ${s.trackers.map((tr, idx) => {
+        if (isHabit(tr)) return '';
         const entries = todayTracks.filter((e) => e.trackerId === tr.id);
         const open = openTracker === tr.id;
         return `<div class="tracker">
@@ -342,7 +390,10 @@ export function render(root, ctx) {
     wins: () => winsCard(d),
     focus: () => focusCard(s, day),
     tracker: () => trackerCard(s, d),
+    habits: () => habitsCard(s, d),
+    reflection: () => reflectionCard(d),
   };
+  const praise = weekPraise(s, day);
   const visible = layout.order.filter((id) => !layout.hidden.has(id));
 
   root.innerHTML = `
@@ -363,7 +414,13 @@ export function render(root, ctx) {
       <div class="banner banner--alert card--wide" role="status">
         <span class="banner__icon">${pillbox('meh')}</span>
         <p class="banner__text">Noch offen: ${missed.map((x) => `${esc(x.time)} ${esc(x.name)}`).join(', ')}</p>
-        <button class="btn btn--small" type="button" data-action="to-meds" data-key="to-meds">Abhaken</button>
+        <button class="btn btn--small" type="button" data-action="meds-missed-done" data-key="meds-missed-done">Alle abhaken</button>
+      </div>` : ''}
+
+      ${praise.length ? `
+      <div class="banner banner--praise card--wide" role="status">
+        <span class="banner__icon">${star(true)}</span>
+        <p class="banner__text">${praise.map(esc).join('<br>')}</p>
       </div>` : ''}
 
       <div class="banner card--wide">
@@ -398,15 +455,15 @@ export function render(root, ctx) {
       [...inputs].find((x) => !x.value)?.focus();
       return;
     }
-    if (action === 'to-meds') {
-      if (layoutOf(getState().settings).collapsed.has('meds')) {
-        update((st) => toggleIn(st.settings, 'collapsed', 'meds', false));
-        ctx.refresh();
-      }
-      const first = root.querySelector('[data-action="med"]:not(:checked)');
-      first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      first?.focus({ preventScroll: true });
-      return;
+    if (action === 'meds-missed-done') {
+      // Früher sprang der Button nur zur ersten Checkbox (auf dem Handy unsichtbar) – jetzt hakt er wirklich ab.
+      const keys = missedMeds(getState(), day, minutesNow()).map((x) => x.key);
+      update((st) => {
+        const dd = ensureDay(st, day);
+        keys.forEach((k) => { dd.medsTaken[k] = true; });
+        dd.medsPlanned = medSlots(st.meds).map((x) => x.key);
+      });
+      toast(keys.length === 1 ? 'Abgehakt ✓' : `${keys.length} Einnahmen abgehakt ✓`);
     }
     if (action === 'water') {
       const ml = Number(btn.dataset.ml);
@@ -472,6 +529,17 @@ export function render(root, ctx) {
         else if (t) { t.done = el.checked; t.doneOn = el.checked ? day : null; }
       });
       if (el.checked) toast('Erledigt ✓ – rutscht nach unten');
+    } else if (el.dataset.action === 'habit') {
+      update((st) => {
+        const dd = ensureDay(st, day);
+        const rest = (dd.tracks || []).filter((e) => e.trackerId !== el.dataset.id);
+        dd.tracks = el.checked ? [...rest, { id: uid(), trackerId: el.dataset.id, level: null, time: nowTime(), note: '' }] : rest;
+      });
+      if (el.checked) toast('Geschafft – super! ✦');
+    } else if (el.dataset.action === 'reflection') {
+      update((st) => { ensureDay(st, day).reflection = el.value.trim(); });
+      if (el.value.trim()) toast('Gespeichert ♡');
+      return; // kein Neuzeichnen, damit der Text-Cursor bleibt
     } else if (el.dataset.action === 'todo-color') {
       update((st) => { const t = st.todos.find((x) => x.id === el.dataset.id); if (t) t.color = el.value || null; });
     } else if (el.dataset.action === 'win') {
@@ -488,6 +556,11 @@ export function render(root, ctx) {
       if (text) toast('Erfolg notiert ★');
     } else return;
     ctx.refresh();
+  };
+
+  // Reflexion schon beim Tippen sichern (falls die App ohne Verlassen des Felds geschlossen wird).
+  root.oninput = (ev) => {
+    if (ev.target.dataset.action === 'reflection') update((st) => { ensureDay(st, day).reflection = ev.target.value; });
   };
 
   root.onsubmit = (ev) => {

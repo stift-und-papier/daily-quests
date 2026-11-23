@@ -6,11 +6,11 @@ import { remindersForDay, dueNow, missedMeds } from './reminders.js';
 import { calendarEvents, buildIcs } from './ics.js';
 import { exportText, parseBackup } from './backup.js';
 import { normalize } from './store.js';
-import { levelsOf, levelWord, levelText, trackerSummary, trackerColor, occursOn, eventsOfDay, setEventDone, skipOccurrence, upcomingEvents } from './trackers.js';
+import { hasLevels, levelsOf, levelWord, levelText, trackerSummary, trackerColor, occursOn, eventsOfDay, setEventDone, skipOccurrence, upcomingEvents } from './trackers.js';
 import { rruleOf } from './ics.js';
 import { phaseOnDate, trackerCycleStats } from './cycle.js';
-import { reportData, reportHtml, rangeStart } from './report.js';
-import { todosFor, tomorrowFor, moveTodo, winSlots, eventChip } from './views/today.js';
+import { reportData, reportHtml, rangeStart, periodRange, memoriesData } from './report.js';
+import { todosFor, tomorrowFor, moveTodo, winSlots, eventChip, weekStart, weekPraise } from './views/today.js';
 import { REGIONS, holidaysOn, outsideCoverage, feiertageOn, feiertagRegion, ferienRegion, convertApi } from './holidays.js';
 import FERIEN from './data/ferien.js';
 import { readEventForm } from './views/calendar-part.js';
@@ -176,6 +176,49 @@ check('Heute: Termine zuerst (ganztägig vor 15:00), dann Aufgaben',
 check('Termin erscheint genau an seinem Tag', todosFor(todosT, '2026-11-24').map((t) => t.text), ['Termin morgen', 'Aufgabe alt']);
 check('Vergangene Termine wandern nicht weiter', todosFor(todosT, '2026-11-23').some((t) => t.text === 'Termin gestern'), false);
 
+group('To-Dos wandern weiter');
+const wander = [
+  { id: 'o', text: 'Offen von gestern', date: '2026-11-22', done: false },
+  { id: 'g', text: 'Gestern erledigt', date: '2026-11-22', done: true, doneOn: '2026-11-22' },
+  { id: 'h', text: 'Heute erledigt (alt)', date: '2026-11-20', done: true, doneOn: '2026-11-23' },
+];
+check('Offene Aufgabe von gestern steht heute in der Liste', todosFor(wander, '2026-11-23').map((t) => t.id), ['o', 'h']);
+check('… und übermorgen immer noch', todosFor(wander, '2026-11-25').map((t) => t.id), ['o']);
+check('Gestern Erledigtes bleibt gestern', todosFor(wander, '2026-11-22').map((t) => t.id), ['o', 'g']);
+
+group('Gewohnheiten & Lob-Text (Woche Mo–heute)');
+const habitState = normalize({
+  settings: { waterGoal: 1500 },
+  trackers: [{ id: 'sport', name: 'Sport gemacht', scale: 'habit' }, { id: 'mig', name: 'Migräne', scale: '0-10' }],
+  days: {
+    '2026-11-22': { water: 2000, tracks: [{ trackerId: 'sport' }] },            // Sonntag Vorwoche – zählt nicht
+    '2026-11-23': { water: 1500, tracks: [{ trackerId: 'sport' }, { trackerId: 'mig', level: 5 }] },
+    '2026-11-24': { water: 1600, tracks: [{ trackerId: 'mig', level: 3 }] },
+    '2026-11-25': { water: 1700, tracks: [{ trackerId: 'sport' }] },
+    '2026-11-26': { water: 200, tracks: [{ trackerId: 'sport' }, { trackerId: 'mig', level: 2 }] },
+  },
+});
+check('Wochenstart Donnerstag 26.11. → Montag 23.11.', weekStart('2026-11-26'), '2026-11-23');
+check('Wochenstart Sonntag 29.11. → Montag 23.11.', weekStart('2026-11-29'), '2026-11-23');
+check('Mittwoch: Trinkziel 3×, Sport erst 2× (Vorwoche zählt nicht)', weekPraise(habitState, '2026-11-25').length, 1);
+check('Donnerstag: Sport 3× → Lob, Migräne nie', weekPraise(habitState, '2026-11-26').map((p) => p.includes('Sport') ? 'sport' : p.includes('Trink') ? 'water' : p), ['water', 'sport']);
+check('Gewohnheit ohne Stufe: „geschafft ✓“', levelText('habit', null), 'geschafft ✓');
+check('Gewohnheit hat keine Stufen', hasLevels('habit'), false);
+check('Altes Backup ohne Reflexion lädt, neue Kästen kommen dazu', [normalize({ days: { '2026-01-01': { water: 5 } } }).days['2026-01-01'].water, layoutOf(normalize({ settings: { layout: { order: ['water'] } } }).settings).order.slice(-2)], [5, ['habits', 'reflection']]);
+
+group('Rückblick: Erfolge & Reflexionen');
+check('Woche um Mi 25.11.', periodRange('week', '2026-11-25'), { from: '2026-11-23', to: '2026-11-29' });
+check('Monat Februar 2028 (Schaltjahr)', periodRange('month', '2028-02-10'), { from: '2028-02-01', to: '2028-02-29' });
+check('Jahr', periodRange('year', '2026-11-25'), { from: '2026-01-01', to: '2026-12-31' });
+const memState = { days: {
+  '2026-11-02': { wins: ['Aufgestanden', ''], reflection: '' },
+  '2026-11-10': { wins: [], reflection: 'Schöner Spaziergang' },
+  '2026-11-11': { wins: ['', ''], reflection: '  ' },
+  '2026-12-01': { wins: ['Dezember'], reflection: '' },
+} };
+check('Nur Tage mit Inhalt im Zeitraum', memoriesData(memState, '2026-11-01', '2026-11-30').map((r) => [r.key, r.wins.length, r.reflection]),
+  [['2026-11-02', 1, ''], ['2026-11-10', 0, 'Schöner Spaziergang']]);
+
 group('Tracker: Farbe, Skala, Nachtragen');
 check('Migräne hat standardmäßig Flieder', normalize({}).trackers[0].color, '#B7A6E3');
 check('Älterer Tracker ohne Farbe bekommt eine aus der Liste', [trackerColor({ id: 'x' }, 0), trackerColor({ id: 'y' }, 1)], ['#B7A6E3', '#EFA3B6']);
@@ -287,8 +330,8 @@ check('Farbe bleibt am Eintrag', todosFor(td, '2026-11-23').find((t) => t.id ===
 check('„Für morgen geplant“: nur morgen, Termin & Aufgabe', tomorrowFor(td, '2026-11-23').map((t) => t.text).sort(), ['Morgen-Aufgabe', 'Morgen-Termin']);
 
 group('Heute-Seite: Anordnen, Ausblenden, Einklappen');
-check('Standard-Reihenfolge', layoutOf(normalize({}).settings).order, ['energy', 'water', 'meds', 'todos', 'wins', 'focus', 'tracker']);
-check('Unbekanntes raus, Fehlendes hinten dran', normalizeOrder(['tracker', 'xyz', 'water']), ['tracker', 'water', 'energy', 'meds', 'todos', 'wins', 'focus']);
+check('Standard-Reihenfolge', layoutOf(normalize({}).settings).order, ['energy', 'water', 'meds', 'todos', 'wins', 'focus', 'tracker', 'habits', 'reflection']);
+check('Unbekanntes raus, Fehlendes hinten dran', normalizeOrder(['tracker', 'xyz', 'water']), ['tracker', 'water', 'energy', 'meds', 'todos', 'wins', 'focus', 'habits', 'reflection']);
 check('Kasten nach oben verschieben', moveInList(['a', 'b', 'c'], 'c', -1), ['a', 'c', 'b']);
 const lay = normalize({}).settings;
 toggleIn(lay, 'hidden', 'cycle', true); toggleIn(lay, 'collapsed', 'water', true);

@@ -51,10 +51,17 @@ function buildTabbar() {
     </a></li>`).join('')}</ul>`;
 }
 
+const darkQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
+
 function applySettings() {
-  document.documentElement.classList.toggle('reduce-motion', !!getState().settings.reduceMotion);
+  const { reduceMotion, theme } = getState().settings;
+  document.documentElement.classList.toggle('reduce-motion', !!reduceMotion);
+  const dark = theme === 'dark' || (theme !== 'light' && !!darkQuery?.matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#2A2230' : '#FFF8F0');
   buildTabbar();
 }
+darkQuery?.addEventListener?.('change', applySettings);
 
 /**
  * Seite neu zeichnen. Der Tastatur-Fokus bleibt auf dem Element mit gleichem data-key,

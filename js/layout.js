@@ -10,6 +10,8 @@ export const MODULES = [
   { id: 'wins',    name: 'Kleine Erfolge' },
   { id: 'focus',   name: 'Fokus für die nächsten Tage' },
   { id: 'tracker', name: 'Tracker (Wie geht es meinem Körper?)' },
+  { id: 'habits',  name: 'Gewohnheiten (z. B. Sport gemacht)' },
+  { id: 'reflection', name: 'Abend-Reflexion' },
 ];
 
 /** Kästen auf „Woche“ (Standard: Erfolge zuerst, dann Energie). */

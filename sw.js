@@ -6,7 +6,7 @@
 // WICHTIG nach Änderungen an der App: VERSION unten um 1 erhöhen.
 // Dann laden alle Geräte die neuen Dateien beim nächsten Öffnen.
 
-const VERSION = 20;
+const VERSION = 21;
 const CACHE = `daily-quests-v${VERSION}`;
 
 const FILES = [

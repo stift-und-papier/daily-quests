@@ -811,3 +811,40 @@ dialog.choice::backdrop { background: rgba(74, 59, 54, .35); }
 }
 .seg__btn[aria-pressed="true"] { background: var(--butter); box-shadow: 0 3px 0 var(--line); }
 .seg__btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- Gewohnheiten, Lob, Reflexion, Rückblick ---------- */
+.banner--praise { background: var(--mint); border-radius: var(--radius); }
+.textarea { min-height: 5.5em; resize: vertical; line-height: 1.45; }
+.memories { margin-top: var(--s3); padding: var(--s2) var(--s3); border: 1.5px dashed var(--ink-soft); border-radius: var(--radius-sm); }
+.memories h4 { margin: var(--s1) 0; font-family: var(--font-head); font-weight: 600; font-size: 0.95rem; }
+.memories ul { margin: 0 0 var(--s1); padding-left: 1.2em; }
+.memories__text { white-space: pre-wrap; }
+.cal__year { font-family: var(--font-head); font-size: 1.3rem; font-weight: 600; }
+.report .memories { border-color: #777; break-inside: avoid; }
+
+/* ---------- Dunkelmodus (Einstellungen → Darstellung; data-theme setzt js/app.js) ----------
+   Gedämpfte, dunkle Pastelltöne; Text hell. Kontrast Text/Fläche überall mind. 7:1. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --rosa:    #4A2F3A;
+  --mint:    #23403A;
+  --butter:  #433A22;
+  --flieder: #382F4E;
+  --himmel:  #253549;
+  --creme:   #1F1A23;
+  --ink:      #F4ECE7;
+  --ink-soft: #D8C9C2;
+  --line:     #CBBBB4;
+  --card:     #2C2531;
+  --paper-dot: rgba(255, 255, 255, 0.05);
+  --shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 10px 24px rgba(0, 0, 0, 0.3);
+  --shadow-press: 0 1px 0 rgba(0, 0, 0, 0.45);
+  --wichtig: #7A3446; --wichtig-hell: #48222E; --wichtig-d: #F29BB1; --feiertag-d: #86D6B6;
+}
+:root[data-theme="dark"] :is(.note, .tracker, .kal__day, .facts div) { background: rgba(0, 0, 0, 0.22); }
+:root[data-theme="dark"] .btn--ghost:hover { background: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .input::placeholder { color: #B5A49C; }
+:root[data-theme="dark"] .feiertag-chip { background: #1E3A30; }
+:root[data-theme="dark"] .chip--wichtig { color: #2A1A20; }
+:root[data-theme="dark"] .dot--ferien { background: repeating-linear-gradient(-45deg, #2C4A40 0 3px, #4F8C78 3px 6px); }
+:root[data-theme="dark"] .cal__day.is-ferien:not(.is-selected) { background: repeating-linear-gradient(-45deg, #243F36 0 5px, #2E4D43 5px 10px); }

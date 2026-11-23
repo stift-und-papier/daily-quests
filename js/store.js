@@ -12,6 +12,7 @@ export function defaults() {
       cycleLength: 28,          // Tage
       periodLength: 5,          // Tage
       reduceMotion: false,      // Animationen in der App abschalten
+      theme: 'system',          // 'system' | 'light' | 'dark'
       lastBackup: null,         // Datum des letzten Exports
       weekLayout: {             // Woche-Seite: Reihenfolge, ausgeblendet, eingeklappt
         order: ['wins', 'energy', 'water', 'meds', 'tracker', 'table'],
@@ -23,7 +24,7 @@ export function defaults() {
       showFeiertage: true,     // Feiertage des Bundeslands anzeigen
       holidaysOnline: true,    // Ferien/Feiertage einmal pro Woche online aktualisieren
       layout: {                 // Heute-Seite: Reihenfolge, ausgeblendet (auch 'cycle'), eingeklappt
-        order: ['energy', 'water', 'meds', 'todos', 'wins', 'focus', 'tracker'],
+        order: ['energy', 'water', 'meds', 'todos', 'wins', 'focus', 'tracker', 'habits', 'reflection'],
         hidden: [],
         collapsed: [],
       },
@@ -38,7 +39,7 @@ export function defaults() {
     trackers: [                 // eigene Tracker, z. B. Migräne mit Stufe
       { id: 'migraene', name: 'Migräne', scale: '0-10', color: '#B7A6E3' },
     ],
-    days: {},                   // { 'JJJJ-MM-TT': { water, medsTaken, energy, wins, tracks } }
+    days: {},                   // { 'JJJJ-MM-TT': { water, medsTaken, energy, wins, tracks, reflection } }
     todos: [],                  // [{ id, text, date, done, kind: 'todo'|'event', time }]
     focus: [],                  // [{ id, text, scope: 'tomorrow'|'week', from, until }]
     cycle: { periodDays: [] },  // ['JJJJ-MM-TT', …] – jeder eingetragene Periodentag
@@ -46,7 +47,7 @@ export function defaults() {
 }
 
 export function emptyDay() {
-  return { water: 0, medsTaken: {}, energy: null, wins: [], tracks: [] };
+  return { water: 0, medsTaken: {}, energy: null, wins: [], tracks: [], reflection: '' };
 }
 
 /** Fehlende Felder mit Standardwerten auffüllen (z. B. nach einem Update oder Import). */

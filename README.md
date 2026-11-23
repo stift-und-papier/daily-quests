@@ -3,18 +3,25 @@
 Deine kleine Tages-App für **Trinken, Medikamente, Zyklus, To-Dos, kleine Erfolge, Fokus und Energie** – plus **eigene Tracker** (z. B. Migräne mit Stufe 0–10) und **Termine**, mit Kalender, Wochenrückblick, Erinnerungen und Kalender-Export.
 
 **Die 6 Reiter**
-- **Heute:** Kästen für Energielevel, Trinken, Medikamente, To-Dos & Termine, Kleine Erfolge (beliebig viele), Fokus und Tracker („Wie geht es meinem Körper?“). **Jeder Kasten lässt sich einklappen** (kleiner Pfeil rechts oben). **Reihenfolge ändern und Kästen ausblenden:** Button „Anpassen“ bzw. Einstellungen → „Seiten anpassen & Bereiche“.
+- **Heute:** Kästen für Energielevel, Trinken, Medikamente, To-Dos & Termine, Kleine Erfolge (beliebig viele), Fokus, Tracker („Wie geht es meinem Körper?“), **Meine Gewohnheiten** und **Abend-Reflexion**. **Jeder Kasten lässt sich einklappen** (kleiner Pfeil rechts oben). **Reihenfolge ändern und Kästen ausblenden:** Button „Anpassen“ bzw. Einstellungen → „Seiten anpassen & Bereiche“.
   - **To-Dos & Termine:** Erledigtes rutscht automatisch nach unten. Mit **„↕ Sortieren & Farben“** verschiebst du Einträge nach oben/unten und gibst ihnen eine Farbe (farbiger Streifen links). Darunter: **„Für morgen geplant“**. Geburtstage erscheinen mit 🎂 und Alter.
+    **Nicht erledigte Aufgaben wandern automatisch weiter** auf den nächsten Tag (mit dem Schild „seit …“), bis du sie abhakst oder löschst. Termine wandern nicht mit.
+  - **Medikamente:** Ist eine Einnahme mehr als 15 Minuten überfällig, erscheint oben „Noch offen: …“. **„Alle abhaken“** hakt alle überfälligen Einnahmen auf einmal ab.
+  - **Meine Gewohnheiten:** positive Dinge pro Tag abhaken, z. B. „Sport gemacht“. Anlegen unter Einstellungen → Meine Tracker mit der Skala **„Gewohnheit zum Abhaken“** (es sind ganz normale Tracker, sie erscheinen also auch im Kalender, in der Woche und im Zyklus).
+  - **Lob:** Schaffst du in einer Woche (Montag bis heute) an **mindestens 3 Tagen** dein Trinkziel oder eine Gewohnheit, erscheint oben ein kleiner Lob-Text.
+  - **Abend-Reflexion:** „Was ich von heute in Erinnerung behalten will“ – wird beim Tippen gespeichert.
 - **Kalender:** Monatskalender. **Tag antippen → Liste aller Einträge** dieses Tages in zwei Reitern („Termine“ und „Tracker“), jeweils mit ✎ **bearbeiten** und 🗑 löschen. **Neue Einträge über den runden ➕-Knopf** neben den Reitern – erst dann klappt das Formular auf (oben darin umschalten zwischen 📅 Termin und 🎂 Geburtstag; im Reiter „Tracker“ auch rückwirkend nachtragen). Nochmal antippen (×) klappt es wieder zu.
   - **❗ Wichtig:** Haken im Termin-Formular → der Tag wird im Kalender **rosa-rot**, der Termin bekommt überall einen roten Rahmen und das Schild „❗ Wichtig“.
   - Termine: mit Farbe, **mehrtägig** („Endet am“, im Kalender als **Strich** über den Symbolen), oder **wiederkehrend** (täglich, jede Woche, alle 2 Wochen, jeden Monat, jedes Jahr; optional „Serie endet am“). Beim Löschen einer Serie fragt die App: **nur dieser Termin oder alle?**
   - **Geburtstage** mit eigenem Tortensymbol, kommen jedes Jahr wieder; mit Geburtsjahr zeigt die App das Alter.
   - **Schulferien** des in den Einstellungen gewählten Bundeslands erscheinen gestreift, **Feiertage** mit grünem Ring (und auf der Heute-Seite als „🎉 Heute ist Feiertag“). Beides einzeln abschaltbar.
-  - Darunter der **Bericht für die Ärztin / den Arzt** (Drucken / PDF).
+  - **Monate mit ← →, Jahre mit « »** wechseln. Beim angetippten Tag stehen unten auch die **Kleinen Erfolge** und die **Abend-Reflexion**.
+  - Darunter der **Bericht für die Ärztin / den Arzt** (Drucken / PDF; Gewohnheiten sind dort standardmäßig abgewählt).
+  - **Rückblick: Erfolge & Erinnerungen** – alle Kleinen Erfolge und Reflexionen einer **Woche, eines Monats oder eines Jahres** anzeigen oder drucken / als PDF speichern.
 - **Woche:** Wochenrückblick – Kleine Erfolge, Energielevel, Trinkmenge, Medikamente, Tracker, Tabelle. Einklappbar, Reihenfolge und Sichtbarkeit anpassbar (Button „Anpassen“). Ältere Wochen mit den Pfeilen.
 - **Zyklus:** Phase, Prognose, Periodentage nachtragen, Tracker-Punkte im Zyklus-Kalender und **„Tracker im Zyklus“**. Brauchst du das nicht, kannst du den ganzen Bereich in den Einstellungen **ausblenden** – der Reiter verschwindet dann.
 - **Erinnerungen:** Benachrichtigungen und Kalender-Export (.ics)
-- **Einstellungen:** Seiten anpassen (Heute & Woche) & Bereiche, Ferien & Feiertage (Bundesland oder keins, automatisch aktualisieren), Trinkziel, Medikamente, eigene Tracker (Name, Farbe, Skala 0–10 / 1–5 / leicht-mittel-stark / keine Skala), Darstellung, Backup, Teilen, Installation
+- **Einstellungen:** Seiten anpassen (Heute & Woche) & Bereiche, Ferien & Feiertage (Bundesland oder keins, automatisch aktualisieren), Trinkziel, Medikamente, eigene Tracker (Name, Farbe, Skala 0–10 / 1–5 / leicht-mittel-stark / keine Skala / Gewohnheit zum Abhaken), Darstellung (Animationen; **hell, dunkel oder wie das Gerät**), Backup, Teilen, Installation
 
 - 🔒 **Alle Daten bleiben auf deinem Gerät** (im Speicher des Browsers). Kein Konto, kein Server, keine Werbung, keine Analyse-Dienste.
   - Einzige Ausnahme, abschaltbar: Ist ein Bundesland gewählt, fragt die App einmal pro Woche **openholidaysapi.org** nach neuen Ferien- und Feiertagsterminen. Übertragen wird nur das Bundesland (und technisch die IP-Adresse) – nie deine Einträge.

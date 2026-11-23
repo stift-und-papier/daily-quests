@@ -4,7 +4,7 @@ import { addDays, toKey, pad, formatLong, formatShort } from '../dates.js';
 import { computeCycle, predictions, phaseForDay, PHASES, trackerCycleStats } from '../cycle.js';
 import { phaseIcon, line, trackerIcon } from '../icons.js';
 import { cardHead, tape, toast, esc } from '../ui.js';
-import { trackerColor } from '../trackers.js';
+import { trackerColor, hasLevels } from '../trackers.js';
 import { colorDot } from './tracker-form.js';
 import { pageHead } from './placeholder.js';
 
@@ -105,14 +105,14 @@ function trackerCard(s, st) {
             <p>${colorDot(trackerColor(x.tracker, idx))}<strong>${esc(x.tracker.name)}</strong> · ${x.total} ${x.total === 1 ? 'Tag' : 'Tage'} eingetragen${x.unknown ? ` (${x.unknown} vor deiner ersten eingetragenen Periode, ohne Phase)` : ''}</p>
             ${known ? `<div class="table-wrap"><table class="phase-table">
               <caption class="visually-hidden">${esc(x.tracker.name)} nach Zyklusphase</caption>
-              <thead><tr><th scope="col">Phase</th><th scope="col">Tage</th><th scope="col">Anteil</th>${x.tracker.scale !== 'yesno' ? '<th scope="col">Ø stärkste Stufe</th>' : ''}</tr></thead>
+              <thead><tr><th scope="col">Phase</th><th scope="col">Tage</th><th scope="col">Anteil</th>${hasLevels(x.tracker.scale) ? '<th scope="col">Ø stärkste Stufe</th>' : ''}</tr></thead>
               <tbody>${Object.entries(PHASES).map(([k, p]) => {
                 const ph = x.phases[k];
                 const pct = Math.round((ph.days / known) * 100);
                 return `<tr><th scope="row"><span class="dot" style="background:${PHASE_COLOR[k]}"></span> ${p.name}</th>
                   <td>${ph.days}</td>
                   <td><span class="pbar" aria-hidden="true"><span style="width:${pct}%;background:${trackerColor(x.tracker, idx)}"></span></span> ${pct} %</td>
-                  ${x.tracker.scale !== 'yesno' ? `<td>${ph.avg ?? '–'}</td>` : ''}</tr>`;
+                  ${hasLevels(x.tracker.scale) ? `<td>${ph.avg ?? '–'}</td>` : ''}</tr>`;
               }).join('')}</tbody>
             </table></div>
             <p class="label" style="margin-top:var(--s2)">An welchem Zyklustag?</p>

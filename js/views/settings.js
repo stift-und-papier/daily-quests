@@ -214,6 +214,12 @@ export function render(root, ctx) {
           <span>Animationen ausschalten</span>
         </label>
         <p class="card__sub">Wenn dein Gerät „Bewegung reduzieren“ eingestellt hat, sind Animationen automatisch aus.</p>
+        <div class="field" style="margin-top:var(--s3)">
+          <label for="set-theme">Hell oder dunkel</label>
+          <select id="set-theme" class="select" data-action="theme" data-key="set-theme">
+            ${[['system', 'wie das Gerät'], ['light', 'hell'], ['dark', 'dunkel']].map(([v, l]) => `<option value="${v}" ${(s.settings.theme || 'system') === v ? 'selected' : ''}>${l}</option>`).join('')}
+          </select>
+        </div>
       </section>
 
       <section class="card card--butter" aria-labelledby="set-backup">
@@ -351,6 +357,12 @@ export function render(root, ctx) {
       } catch (err) {
         alert(err.message);
       }
+      ctx.refresh();
+      return;
+    }
+    if (ev.target.dataset.action === 'theme') {
+      const v = ['light', 'dark'].includes(ev.target.value) ? ev.target.value : 'system';
+      update((st) => { st.settings.theme = v; });
       ctx.refresh();
       return;
     }
