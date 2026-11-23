@@ -1,0 +1,9 @@
+# Nicht veröffentlichen:
+# Vorlagen-Bilder (fremde Grafiken, nur zur Inspiration)
+reference/
+# Einstellungen von Claude Code
+.claude/
+# Systemdateien
+Thumbs.db
+desktop.ini
+.DS_Store

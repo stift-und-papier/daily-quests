@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tests · Daily Quests</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body { padding-bottom: var(--s5); }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1.5px dashed rgba(74,59,54,.25); vertical-align: top; }
+    .ok { background: var(--mint); }
+    .fail { background: var(--rosa); }
+    .table-wrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <main class="view">
+    <div class="page-head"><h1>Testseite</h1></div>
+    <p class="note" style="margin-bottom:16px">Diese Seite prüft die Rechenlogik der App mit festen Testdaten. Deine echten Daten werden dabei nicht verändert.</p>
+    <section class="card" aria-labelledby="sum"><h2 id="sum">Ergebnis: läuft …</h2></section>
+    <div id="out" style="margin-top:24px" class="stack"></div>
+  </main>
+  <script type="module" src="js/tests.js"></script>
+</body>
+</html>
